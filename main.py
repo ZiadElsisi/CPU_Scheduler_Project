@@ -1,5 +1,5 @@
 import sys
-
+from PyQt6.QtCore import QTimer
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget,
@@ -7,6 +7,7 @@ from PyQt6.QtWidgets import (
     QTableWidgetItem, QDialog, QLineEdit,
     QFormLayout, QDialogButtonBox, QStatusBar, QFrame, QHBoxLayout, QLabel
 )
+
 
 
 # Main Window
@@ -83,6 +84,9 @@ QPushButton:pressed {
     background-color: #1c5980;
 }
 """)
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_simulation)
+        self.add_btn.clicked.connect(self.start)
         ButtonsContainer = QHBoxLayout()
         ButtonsContainer.addWidget(self.add_btn)
         ButtonsContainer.addWidget(self.Start_Btn)
@@ -93,7 +97,10 @@ QPushButton:pressed {
 
         central_widget.setLayout(mainlayout)
         self.setCentralWidget(central_widget)
-
+    def start(self):
+        self.timer.start(1000)  # 1 second
+    
+   
 
 
 # Run App
