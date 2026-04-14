@@ -84,9 +84,9 @@ QPushButton:pressed {
     background-color: #1c5980;
 }
 """)
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.update_simulation)
-        self.add_btn.clicked.connect(self.start)
+        # self.timer = QTimer()
+        # self.timer.timeout.connect(self.update_simulation)
+        # self.add_btn.clicked.connect(self.start)
         ButtonsContainer = QHBoxLayout()
         ButtonsContainer.addWidget(self.add_btn)
         ButtonsContainer.addWidget(self.Start_Btn)
