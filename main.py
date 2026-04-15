@@ -7,6 +7,8 @@ from PyQt6.QtWidgets import (
     QTableWidgetItem, QDialog, QLineEdit,
     QFormLayout, QDialogButtonBox, QStatusBar, QFrame, QHBoxLayout, QLabel
 )
+from table_widget import createTable
+from models import create_process
 
 
 
@@ -14,6 +16,7 @@ from PyQt6.QtWidgets import (
 class MyWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.processes=[]
         self.setWindowTitle("CPU Scheduler - Task 1")
         self.resize(900, 600)
 
@@ -34,14 +37,14 @@ border-radius: 10px;
         mainlayout.addWidget(Header)
         # TableChartLayout -- > Contains Table / Chart
         TableChartLayout = QHBoxLayout()
-        Table = QFrame()
+        self.Table = createTable(self)
 
-        Table.setStyleSheet("background-color: red;")
+        #self.Table.setStyleSheet("background-color: red;")
 
         Chart = QFrame()
         Chart.setStyleSheet("background-color: blue;")
 
-        TableChartLayout.addWidget(Table)
+        TableChartLayout.addWidget(self.Table)
         TableChartLayout.addWidget(Chart)
         TableChartLayout.setStretch(0, 1)
         TableChartLayout.setStretch(1, 2)
@@ -66,6 +69,7 @@ QPushButton:pressed {
     background-color: #1c5980;
 }
 """)
+        self.add_btn.clicked.connect(self.add_process)
         self.Start_Btn = QPushButton("Start")
         self.Start_Btn.setStyleSheet("""
 QPushButton {
@@ -99,6 +103,23 @@ QPushButton:pressed {
         self.setCentralWidget(central_widget)
     def start(self):
         self.timer.start(1000)  # 1 second
+     
+    def add_process(self):
+         if not self.processes:
+            nextLastId=1
+         else:
+            currentLastId=self.processes[-1]["id"]
+            nextLastId=int(currentLastId[1:])+1
+         p = create_process("P"+str(nextLastId), 0, 5)
+         self.processes.append(p)
+         row = self.Table.rowCount()
+         self.Table.insertRow(row)
+
+         self.Table.setItem(row, 0, QTableWidgetItem(p["id"]))
+         self.Table.setItem(row, 1, QTableWidgetItem(str(p["arrival"])))
+         self.Table.setItem(row, 2, QTableWidgetItem(str(p["burst"])))
+         self.Table.setItem(row, 3, QTableWidgetItem(str(p["remaining"])))
+
     
    
 
@@ -114,4 +135,8 @@ if __name__ == "__main__":
     sys.exit(app.exec())
     
 
-    
+  
+
+
+        
+
