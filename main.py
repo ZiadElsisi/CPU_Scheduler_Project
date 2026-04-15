@@ -116,9 +116,9 @@ QPushButton:pressed {
     background-color: #1c5980;
 }
 """)
-        # self.timer = QTimer()
-        # self.timer.timeout.connect(self.update_simulation)
-        # self.add_btn.clicked.connect(self.start)
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_simulation)
+        self.add_btn.clicked.connect(self.start)
         ButtonsContainer = QHBoxLayout()
         ButtonsContainer.addWidget(self.add_btn)
         ButtonsContainer.addWidget(self.Start_Btn)
@@ -131,7 +131,7 @@ QPushButton:pressed {
         central_widget.setLayout(mainlayout)
         self.setCentralWidget(central_widget)
     def start(self):
-        self.timer.start(1000)  # 1 second
+       self.timer.start(1000)  # 1 second
      
     def add_process(self):
          if not self.processes:
@@ -141,13 +141,12 @@ QPushButton:pressed {
             nextLastId=int(currentLastId[1:])+1
          p = create_process("P"+str(nextLastId), 0, 5)
          self.processes.append(p)
-         row = self.Table.rowCount()
-         self.Table.insertRow(row)
-
-         self.Table.setItem(row, 0, QTableWidgetItem(p["id"]))
-         self.Table.setItem(row, 1, QTableWidgetItem(str(p["arrival"])))
-         self.Table.setItem(row, 2, QTableWidgetItem(str(p["burst"])))
-         self.Table.setItem(row, 3, QTableWidgetItem(str(p["remaining"])))
+         row = self.table.rowCount()
+         self.table.insertRow(row)
+         self.table.setItem(row, 0, QTableWidgetItem(p["id"]))
+         self.table.setItem(row, 1, QTableWidgetItem(str(p["arrival"])))
+         self.table.setItem(row, 2, QTableWidgetItem(str(p["burst"])))
+         self.table.setItem(row, 3, QTableWidgetItem(str(p["remaining"])))
 
     
    
