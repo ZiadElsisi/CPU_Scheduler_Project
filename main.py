@@ -10,7 +10,7 @@ from PyQt6.QtWidgets import (
 )
 from table_widget import createTable
 from models import create_process
-
+from CoreEngine import run_step
 
 
 # Main Window
@@ -36,13 +36,13 @@ class MyWindow(QMainWindow):
         Header = QLabel("WELCOME TO CPU SCHEDULER")
         Header.setAlignment(Qt.AlignmentFlag.AlignCenter)
         Header.setStyleSheet("""
-background-color: #111827;
-color: #E5E7EB;
-font-size: 26px;
-font-weight: bold;
-padding: 20px;
-border-radius: 10px;
-""")
+            background-color: #111827;
+            color: #E5E7EB;
+            font-size: 26px;
+            font-weight: bold;
+            padding: 20px;
+            border-radius: 10px;
+            """)
         mainlayout.addWidget(Header)
         
         #combo box for selecting scheduling algorithm
@@ -57,9 +57,6 @@ border-radius: 10px;
         )
 
     
-       
-      
-        
         # TableChartLayout -- > Contains Table / Chart
         TableChartLayout = QHBoxLayout()
         from table_widget import createTable
@@ -81,41 +78,41 @@ border-radius: 10px;
         # Add Button
         self.add_btn = QPushButton("Add Process")
         self.add_btn.setStyleSheet("""
-QPushButton {
-    background-color: #3498db;
-    color: white;
-    border-radius: 10px;
-    padding: 10px;
-    font-size: 14px;
-}
+            QPushButton {
+                background-color: #3498db;
+                color: white;
+                border-radius: 10px;
+                padding: 10px;
+                font-size: 14px;
+            }
 
-QPushButton:hover {
-    background-color: #2980b9;
-}
+            QPushButton:hover {
+                background-color: #2980b9;
+            }
 
-QPushButton:pressed {
-    background-color: #1c5980;
-}
-""")
+            QPushButton:pressed {
+                background-color: #1c5980;
+            }
+            """)
         self.add_btn.clicked.connect(self.add_process)
         self.Start_Btn = QPushButton("Start")
         self.Start_Btn.setStyleSheet("""
-QPushButton {
-    background-color: #3498db;
-    color: white;
-    border-radius: 10px;
-    padding: 10px;
-    font-size: 14px;
-}
+            QPushButton {
+                background-color: #3498db;
+                color: white;
+                border-radius: 10px;
+                padding: 10px;
+                font-size: 14px;
+            }
 
-QPushButton:hover {
-    background-color: #2980b9;
-}
+            QPushButton:hover {
+                background-color: #2980b9;
+            }
 
-QPushButton:pressed {
-    background-color: #1c5980;
-}
-""")
+            QPushButton:pressed {
+                background-color: #1c5980;
+            }
+            """)
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_simulation)
         self.add_btn.clicked.connect(self.start)
@@ -148,7 +145,11 @@ QPushButton:pressed {
          self.table.setItem(row, 2, QTableWidgetItem(str(p["burst"])))
          self.table.setItem(row, 3, QTableWidgetItem(str(p["remaining"])))
 
-    
+    def update_simulation(self):
+        run_step(self.state)
+        for row, p in enumerate(self.processes):
+            new_value = str(p["remaining"]) 
+            self.table.setItem(row, 3, QTableWidgetItem(new_value))
    
     
 
