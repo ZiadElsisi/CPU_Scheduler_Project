@@ -5,6 +5,9 @@ def create_process(pid, arrival, burst,priority):
         "arrival": arrival,
         "burst": burst,
         "remaining": burst ,
+        "finish":0,
+        "turnaround":0,
+        "waiting":0,
         "priority": priority,
     }
     return process

@@ -47,6 +47,6 @@ def createTable(self):
 
 """)
         #creating the initial processes
-        table.setHorizontalHeaderLabels(["process id","arrival time","burst time","remaining time","Priority"])
+        table.setHorizontalHeaderLabels(["PID","T_arrival","T_burst","T_remaining","T_Turnaround", "T_Waiting","Priority"])
         table.setColumnHidden(4, True) ## --> Hide Periority Initially
         return table
