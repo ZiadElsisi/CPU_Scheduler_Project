@@ -1,8 +1,9 @@
+from email.mime import text
 import sys
 from PyQt6.QtCore import QTimer
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
-    QApplication, QMainWindow, QWidget,
+    QApplication, QComboBox, QMainWindow, QWidget,
     QVBoxLayout, QPushButton, QTableWidget,
     QTableWidgetItem, QDialog, QLineEdit,
     QFormLayout, QDialogButtonBox, QStatusBar, QFrame, QHBoxLayout, QLabel
@@ -12,7 +13,14 @@ from PyQt6.QtWidgets import (
 
 # Main Window
 class MyWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self): 
+
+        self.state = {
+    "queue": [],
+    "current": None,
+    "time": 0,
+    "algorithm": None
+}
         super().__init__()
         self.setWindowTitle("CPU Scheduler - Task 1")
         self.resize(900, 600)
@@ -32,6 +40,22 @@ padding: 20px;
 border-radius: 10px;
 """)
         mainlayout.addWidget(Header)
+        
+        #combo box for selecting scheduling algorithm
+        self.combo = QComboBox()
+        self.combo.setPlaceholderText("Select Algorithm")
+        self.combo.addItems(["Priority Preemptive", "Priority Non-Preemptive", "Round Robin", "SJF Preemptive", "SJF Non-Preemptive"])
+        self.combo.setCurrentIndex(-1)
+        self.combo.currentTextChanged.connect(
+    lambda text: (
+        self.state.update({"algorithm": text}))
+
+        )
+
+    
+       
+      
+        
         # TableChartLayout -- > Contains Table / Chart
         TableChartLayout = QHBoxLayout()
         Table = QFrame()
@@ -46,6 +70,10 @@ border-radius: 10px;
         TableChartLayout.setStretch(0, 1)
         TableChartLayout.setStretch(1, 2)
         mainlayout.addLayout(TableChartLayout)
+
+    
+       
+        
 
         # Add Button
         self.add_btn = QPushButton("Add Process")
@@ -90,6 +118,7 @@ QPushButton:pressed {
         ButtonsContainer = QHBoxLayout()
         ButtonsContainer.addWidget(self.add_btn)
         ButtonsContainer.addWidget(self.Start_Btn)
+        ButtonsContainer.addWidget(self.combo)
 
         # Add to layout
         # mainlayout.addWidget(self.table)
@@ -101,7 +130,7 @@ QPushButton:pressed {
         self.timer.start(1000)  # 1 second
     
    
-
+    
 
 # Run App
 
@@ -110,7 +139,6 @@ if __name__ == "__main__":
 
     window = MyWindow()
     window.show()
-
     sys.exit(app.exec())
     
 
