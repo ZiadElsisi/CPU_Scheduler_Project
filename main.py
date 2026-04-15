@@ -34,16 +34,15 @@ border-radius: 10px;
         mainlayout.addWidget(Header)
         # TableChartLayout -- > Contains Table / Chart
         TableChartLayout = QHBoxLayout()
-        Table = QFrame()
-
-        Table.setStyleSheet("background-color: red;")
+        from table_widget import createTable
+        self.table = createTable(self)
 
         Chart = QFrame()
         Chart.setStyleSheet("background-color: blue;")
 
-        TableChartLayout.addWidget(Table)
+        TableChartLayout.addWidget(self.table)
         TableChartLayout.addWidget(Chart)
-        TableChartLayout.setStretch(0, 1)
+        TableChartLayout.setStretch(0, 2)
         TableChartLayout.setStretch(1, 2)
         mainlayout.addLayout(TableChartLayout)
 
