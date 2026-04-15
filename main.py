@@ -146,6 +146,10 @@ class MyWindow(QMainWindow):
          self.table.setItem(row, 3, QTableWidgetItem(str(p["remaining"])))
 
     def update_simulation(self):
+        if not self.state["queue"] and self.state["current"] is None:
+            self.timer.stop()
+            print("Simulation Finished: All processes completed.")
+            return 
         run_step(self.state)
         for row, p in enumerate(self.processes):
             new_value = str(p["remaining"]) 
