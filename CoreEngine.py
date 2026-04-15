@@ -1,6 +1,6 @@
 # File: scheduler.py
 
-# This is our global state to keep track of everything in one place
+# our global state to keep track of everything in one place
 state = {
     "queue": [],      # List of processes waiting
     "current": None,   # The process the CPU is currently executing
@@ -23,7 +23,7 @@ def run_step(state):
     if current_p["remaining"] > 0:
         current_p["remaining"] = current_p["remaining"] - 1
 
-   #print on console      
+   #print on console check the process 
     print(f"Time {state['time']}: Process {current_p['id']} is running. Left: {current_p['remaining']}")
 
 
