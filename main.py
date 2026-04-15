@@ -12,123 +12,112 @@ from table_widget import createTable
 from models import create_process
 from CoreEngine import run_step
 
+## Style ::
+Button_style = """
+            QPushButton {
+                background-color: #3498db;
+                color: white;
+                border-radius: 10px;
+                padding: 10px;
+                font-size: 14px;
+            }
 
-# Main Window
-class MyWindow(QMainWindow):
-    def __init__(self): 
+            QPushButton:hover {
+                background-color: #2980b9;
+            }
 
-        self.state = {
-    "queue": [],
-    "current": None,
-    "time": 0,
-    "algorithm": None
-}
-        super().__init__()
-        self.processes=[]
-        self.setWindowTitle("CPU Scheduler - Task 1")
-        self.resize(1100, 600)
-        self.setMinimumSize(1100,600)
-
-        # Centeral widget :
-        central_widget = QWidget()
-        # Main Layout--> Contains Table / chats And Buttons
-        mainlayout = QVBoxLayout()
-        Header = QLabel("WELCOME TO CPU SCHEDULER")
-        Header.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        Header.setStyleSheet("""
+            QPushButton:pressed {
+                background-color: #1c5980;
+            }
+            """
+Header_style = """
             background-color: #111827;
             color: #E5E7EB;
             font-size: 26px;
             font-weight: bold;
             padding: 20px;
             border-radius: 10px;
-            """)
+            """
+# Main Window
+class MyWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        ## Configuration
+        self.state = {
+            "queue": [],
+            "current": None,
+            "time": 0,
+            "algorithm": None
+        }
+        self.processes=[]
+        self.setWindowTitle("CPU Scheduler")
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_simulation)
+        self.resize(1100, 600)
+        self.setMinimumSize(1100,600)
+
+        # ==================== UI ====================
+        central_widget = QWidget()
+        # Main Layout--> Contains Table / chats And Buttons
+        mainlayout = QVBoxLayout()
+        Header = QLabel("WELCOME TO CPU SCHEDULER")
+        Header.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        Header.setStyleSheet(Header_style)
         mainlayout.addWidget(Header)
-        
-        #combo box for selecting scheduling algorithm
-        self.combo = QComboBox()
-        self.combo.setPlaceholderText("Select Algorithm")
-        self.combo.addItems(["Priority Preemptive", "Priority Non-Preemptive", "Round Robin", "SJF Preemptive", "SJF Non-Preemptive"])
-        self.combo.setCurrentIndex(-1)
-        self.combo.currentTextChanged.connect(
-    lambda text: (
-        self.state.update({"algorithm": text}))
-
-        )
-
     
         # TableChartLayout -- > Contains Table / Chart
         TableChartLayout = QHBoxLayout()
         from table_widget import createTable
         self.table = createTable(self)
+        TableChartLayout.addWidget(self.table)
 
         Chart = QFrame()
         Chart.setStyleSheet("background-color: blue;")
-
-        TableChartLayout.addWidget(self.table)
         TableChartLayout.addWidget(Chart)
+
+
         TableChartLayout.setStretch(0, 1)
         TableChartLayout.setStretch(1, 1)
         mainlayout.addLayout(TableChartLayout)
 
     
-       
-        
 
-        # Add Button
+        ButtonsContainer = QHBoxLayout() ##--> Container For Buttons
+        # Add Buttons
         self.add_btn = QPushButton("Add Process")
-        self.add_btn.setStyleSheet("""
-            QPushButton {
-                background-color: #3498db;
-                color: white;
-                border-radius: 10px;
-                padding: 10px;
-                font-size: 14px;
-            }
-
-            QPushButton:hover {
-                background-color: #2980b9;
-            }
-
-            QPushButton:pressed {
-                background-color: #1c5980;
-            }
-            """)
-        self.add_btn.clicked.connect(self.add_process)
-        self.Start_Btn = QPushButton("Start")
-        self.Start_Btn.setStyleSheet("""
-            QPushButton {
-                background-color: #3498db;
-                color: white;
-                border-radius: 10px;
-                padding: 10px;
-                font-size: 14px;
-            }
-
-            QPushButton:hover {
-                background-color: #2980b9;
-            }
-
-            QPushButton:pressed {
-                background-color: #1c5980;
-            }
-            """)
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.update_simulation)
-        self.add_btn.clicked.connect(self.start)
-        ButtonsContainer = QHBoxLayout()
+        self.add_btn.setStyleSheet(Button_style)
         ButtonsContainer.addWidget(self.add_btn)
+
+        ## Add Button Event
+        self.add_btn.clicked.connect(self.add_process)
+
+        # Start Button
+        self.Start_Btn = QPushButton("Start")
+        self.Start_Btn.setStyleSheet(Button_style)
+        ## Start Button Event
+        self.Start_Btn.clicked.connect(self.start)
         ButtonsContainer.addWidget(self.Start_Btn)
+
+
+        # combo box for selecting scheduling algorithm
+        self.combo = QComboBox()
+        self.combo.setPlaceholderText("Select Algorithm")
+        self.combo.addItems(
+            ["Priority Preemptive", "Priority Non-Preemptive", "Round Robin", "SJF Preemptive", "SJF Non-Preemptive"])
+        self.combo.setCurrentIndex(-1)
+        self.combo.currentTextChanged.connect(lambda text: (self.state.update(
+            {"algorithm": text})))
         ButtonsContainer.addWidget(self.combo)
 
         # Add to layout
-        # mainlayout.addWidget(self.table)
         mainlayout.addLayout(ButtonsContainer)
 
         central_widget.setLayout(mainlayout)
         self.setCentralWidget(central_widget)
+
     def start(self):
-       self.timer.start(1000)  # 1 second
+        self.timer.start(1000)# 1 second
+        print("Hello")
      
     def add_process(self):
          if not self.processes:

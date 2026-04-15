@@ -12,7 +12,7 @@ def priority_Nonpreemptive(state):
 
     state["queue"].sort(key=sort_key)
 
-    return state["queue"][0]
+    return state["queue"].pop(0)
 
 
 # Priority Preemptive ----
@@ -37,6 +37,21 @@ def round_robin(state):
         return None
     return state["queue"][0]
 
+# Shortest Job First None Preemptive ----
+
+def sjf_non_preemptive(state):
+    # If nothing is running and no processes are waiting
+    if not state["queue"] and not state["current"]:
+        return None
+
+    # If a process is already running → KEEP IT
+    if state["current"]:
+        return state["current"]
+
+    # Otherwise → pick shortest job from queue
+    state["queue"].sort(key=lambda p: p["burst"])
+    return state["queue"].pop(0)
+
 
 
 # Shortest Job First Preemptive ----
@@ -53,11 +68,3 @@ def sjf_Preemptive(state):
     return min(candidates, key=lambda p: p["remaining"])
 
 
-#  First Come First Surved  ----
-
-def fcfs(state):
-    if state["current"]:
-        return state["current"]
-    if not state["queue"]:
-        return None
-    return state["queue"][0]

@@ -1,7 +1,7 @@
 # File: scheduler_Algorithms.py
 
 # This is our global state to keep track of everything in one place
-from scheduler_Algorithms import round_robin , priority_Nonpreemptive, priority_preemptive , sjf_Preemptive , fcfs
+from scheduler_Algorithms import round_robin , priority_Nonpreemptive, priority_preemptive , sjf_Preemptive , sjf_non_preemptive
 
 
 def get_next_process(state):
@@ -19,18 +19,11 @@ def get_next_process(state):
 
     elif state["algorithm"] == "SJF Preemptive":
         return sjf_Preemptive(state)
-    #
-    # elif state["algorithm"] == "SJF Non-Preemptive":
-    #     return sjf_non_preemptive(state)
+
+    elif state["algorithm"] == "SJF Non-Preemptive":
+        return sjf_non_preemptive()
 
 
-state = {
-    "queue": [],  # List of processes waiting
-    "current": None,  # The process the CPU is currently executing
-    "time": 0,  # The global counter clock { 1 s each time ]
-    "algorithm": None
-
-}
 
 
 def run_step(state):
@@ -56,14 +49,21 @@ def run_step(state):
 
 
 
-# ================== Testing ========
-
-if __name__ == "__main__":
-    # Example process 
-    test_p = {"id": "P1", "arrival": 0, "burst": 5, "remaining": 5}
-    
-    state["current"] = test_p
-    
-    # Simulate 5 seconds 
-    for i in range(5):
-        run_step(state)
+# # ================== Testing ========
+#
+# if __name__ == "__main__":
+#     # Example process
+#     state = {
+#         "queue": [],  # List of processes waiting
+#         "current": None,  # The process the CPU is currently executing
+#         "time": 0,  # The global counter clock { 1 s each time ]
+#         "algorithm": None
+#
+#     }
+#     test_p = {"id": "P1", "arrival": 0, "burst": 5, "remaining": 5}
+#
+#     state["current"] = test_p
+#
+#     # Simulate 5 seconds
+#     for i in range(5):
+#         run_step(state)
