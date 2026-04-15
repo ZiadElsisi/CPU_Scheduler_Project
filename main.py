@@ -23,7 +23,8 @@ class MyWindow(QMainWindow):
 }
         super().__init__()
         self.setWindowTitle("CPU Scheduler - Task 1")
-        self.resize(900, 600)
+        self.resize(1100, 600)
+        self.setMinimumSize(1100,600)
 
         # Centeral widget :
         central_widget = QWidget()
@@ -66,8 +67,8 @@ border-radius: 10px;
 
         TableChartLayout.addWidget(self.table)
         TableChartLayout.addWidget(Chart)
-        TableChartLayout.setStretch(0, 2)
-        TableChartLayout.setStretch(1, 2)
+        TableChartLayout.setStretch(0, 1)
+        TableChartLayout.setStretch(1, 1)
         mainlayout.addLayout(TableChartLayout)
 
     
