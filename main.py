@@ -211,7 +211,19 @@ class MyWindow(QMainWindow):
                 self.running_label.setText(f"Running: {self.state['current']['id']}")
             else:
                 self.running_label.setText("Running: None")
+            
+            if self.state["current"]:
+                self.highlight_row(self.state["current"]["id"])
 
+    def highlight_row(self, active_id):
+        for row in range(self.table.rowCount()):
+            item = self.table.item(row, 0)
+            if item and item.text() == active_id:
+                for col in range(self.table.columnCount()):
+                    self.table.item(row, col).setBackground(Qt.GlobalColor.yellow)
+            else:
+                for col in range(self.table.columnCount()):
+                    self.table.item(row, col).setBackground(Qt.GlobalColor.white)
 
 # Run App
 
