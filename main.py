@@ -180,7 +180,7 @@ class MyWindow(QMainWindow):
             self.table.setColumnHidden(4, False)
         else:
             self.table.setColumnHidden(4, True)
-
+#
     def update_simulation(self):
         done = False
         for p in self.processes:
