@@ -8,7 +8,9 @@ from PyQt6.QtWidgets import (
     QTableWidgetItem, QDialog, QLineEdit,
     QFormLayout, QDialogButtonBox, QStatusBar, QFrame, QHBoxLayout, QLabel
 )
-
+from table_widget import createTable
+from models import create_process
+from CoreEngine import run_step
 
 
 # Main Window
@@ -22,6 +24,7 @@ class MyWindow(QMainWindow):
     "algorithm": None
 }
         super().__init__()
+        self.processes=[]
         self.setWindowTitle("CPU Scheduler - Task 1")
         self.resize(1100, 600)
         self.setMinimumSize(1100,600)
@@ -33,13 +36,13 @@ class MyWindow(QMainWindow):
         Header = QLabel("WELCOME TO CPU SCHEDULER")
         Header.setAlignment(Qt.AlignmentFlag.AlignCenter)
         Header.setStyleSheet("""
-background-color: #111827;
-color: #E5E7EB;
-font-size: 26px;
-font-weight: bold;
-padding: 20px;
-border-radius: 10px;
-""")
+            background-color: #111827;
+            color: #E5E7EB;
+            font-size: 26px;
+            font-weight: bold;
+            padding: 20px;
+            border-radius: 10px;
+            """)
         mainlayout.addWidget(Header)
         
         #combo box for selecting scheduling algorithm
@@ -54,9 +57,6 @@ border-radius: 10px;
         )
 
     
-       
-      
-        
         # TableChartLayout -- > Contains Table / Chart
         TableChartLayout = QHBoxLayout()
         from table_widget import createTable
@@ -78,43 +78,44 @@ border-radius: 10px;
         # Add Button
         self.add_btn = QPushButton("Add Process")
         self.add_btn.setStyleSheet("""
-QPushButton {
-    background-color: #3498db;
-    color: white;
-    border-radius: 10px;
-    padding: 10px;
-    font-size: 14px;
-}
+            QPushButton {
+                background-color: #3498db;
+                color: white;
+                border-radius: 10px;
+                padding: 10px;
+                font-size: 14px;
+            }
 
-QPushButton:hover {
-    background-color: #2980b9;
-}
+            QPushButton:hover {
+                background-color: #2980b9;
+            }
 
-QPushButton:pressed {
-    background-color: #1c5980;
-}
-""")
+            QPushButton:pressed {
+                background-color: #1c5980;
+            }
+            """)
+        self.add_btn.clicked.connect(self.add_process)
         self.Start_Btn = QPushButton("Start")
         self.Start_Btn.setStyleSheet("""
-QPushButton {
-    background-color: #3498db;
-    color: white;
-    border-radius: 10px;
-    padding: 10px;
-    font-size: 14px;
-}
+            QPushButton {
+                background-color: #3498db;
+                color: white;
+                border-radius: 10px;
+                padding: 10px;
+                font-size: 14px;
+            }
 
-QPushButton:hover {
-    background-color: #2980b9;
-}
+            QPushButton:hover {
+                background-color: #2980b9;
+            }
 
-QPushButton:pressed {
-    background-color: #1c5980;
-}
-""")
-        # self.timer = QTimer()
-        # self.timer.timeout.connect(self.update_simulation)
-        # self.add_btn.clicked.connect(self.start)
+            QPushButton:pressed {
+                background-color: #1c5980;
+            }
+            """)
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_simulation)
+        self.add_btn.clicked.connect(self.start)
         ButtonsContainer = QHBoxLayout()
         ButtonsContainer.addWidget(self.add_btn)
         ButtonsContainer.addWidget(self.Start_Btn)
@@ -127,8 +128,32 @@ QPushButton:pressed {
         central_widget.setLayout(mainlayout)
         self.setCentralWidget(central_widget)
     def start(self):
-        self.timer.start(1000)  # 1 second
-    
+       self.timer.start(1000)  # 1 second
+     
+    def add_process(self):
+         if not self.processes:
+            nextLastId=1
+         else:
+            currentLastId=self.processes[-1]["id"]
+            nextLastId=int(currentLastId[1:])+1
+         p = create_process("P"+str(nextLastId), 0, 5)
+         self.processes.append(p)
+         row = self.table.rowCount()
+         self.table.insertRow(row)
+         self.table.setItem(row, 0, QTableWidgetItem(p["id"]))
+         self.table.setItem(row, 1, QTableWidgetItem(str(p["arrival"])))
+         self.table.setItem(row, 2, QTableWidgetItem(str(p["burst"])))
+         self.table.setItem(row, 3, QTableWidgetItem(str(p["remaining"])))
+
+    def update_simulation(self):
+        if not self.state["queue"] and self.state["current"] is None:
+            self.timer.stop()
+            print("Simulation Finished: All processes completed.")
+            return 
+        run_step(self.state)
+        for row, p in enumerate(self.processes):
+            new_value = str(p["remaining"]) 
+            self.table.setItem(row, 3, QTableWidgetItem(new_value))
    
     
 
@@ -142,4 +167,8 @@ if __name__ == "__main__":
     sys.exit(app.exec())
     
 
-    
+  
+
+
+        
+
