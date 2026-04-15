@@ -21,23 +21,35 @@ def get_next_process(state):
         return sjf_Preemptive(state)
 
     elif state["algorithm"] == "SJF Non-Preemptive":
-        return sjf_non_preemptive()
+        return sjf_non_preemptive(state)
 
-
+    return None
 
 
 def run_step(state):
+    # ===== SELECT PROCESS =====
+    selected = get_next_process(state)
+    if selected is None:
+        if state["current"] is None:
+            return
+        else:
+            selected = state["current"]
 
-    # we need to check if there is a process or not at firdt
-    if state["current"] is None:
-        print(" Nothing to do.")
-        return #we stop the function early so we don't try to subtract time from a non-existent process
+    # ===== SWITCH (IMPORTANT FOR PREEMPTIVE) =====
+    if state["current"] != selected:
+            if state["current"]:
+                state["queue"].append(state["current"])
+
+            state["current"] = selected
+
+            if selected in state["queue"]:
+                state["queue"].remove(selected)
+
+    current_p = state["current"]
 
     # 1. Move the clock forward by 1 second
     state["time"] = state["time"] + 1
-    
-    # 2. get the current process from the state
-    current_p = state["current"]
+
     
     # 3. Reduce its remaining time by 1 
     if current_p["remaining"] > 0:
@@ -46,9 +58,8 @@ def run_step(state):
    #print on console      
     print(f"Time {state['time']}: Process {current_p['id']} is running. Left: {current_p['remaining']}")
 
-
-
-
+    if current_p["remaining"] == 0:
+        state["current"] = None
 # # ================== Testing ========
 #
 # if __name__ == "__main__":

@@ -11,6 +11,7 @@ from PyQt6.QtWidgets import (
 from table_widget import createTable
 from models import create_process
 from CoreEngine import run_step
+from table_widget import createTable
 
 ## Style ::
 Button_style = """
@@ -67,7 +68,6 @@ class MyWindow(QMainWindow):
     
         # TableChartLayout -- > Contains Table / Chart
         TableChartLayout = QHBoxLayout()
-        from table_widget import createTable
         self.table = createTable(self)
         TableChartLayout.addWidget(self.table)
 
@@ -75,14 +75,13 @@ class MyWindow(QMainWindow):
         Chart.setStyleSheet("background-color: blue;")
         TableChartLayout.addWidget(Chart)
 
-
+        ## Setting Table/Chart Ratios
         TableChartLayout.setStretch(0, 1)
         TableChartLayout.setStretch(1, 1)
         mainlayout.addLayout(TableChartLayout)
 
-    
-
-        ButtonsContainer = QHBoxLayout() ##--> Container For Buttons
+        ##--> Container For Buttons
+        ButtonsContainer = QHBoxLayout()
         # Add Buttons
         self.add_btn = QPushButton("Add Process")
         self.add_btn.setStyleSheet(Button_style)
@@ -94,8 +93,8 @@ class MyWindow(QMainWindow):
         # Start Button
         self.Start_Btn = QPushButton("Start")
         self.Start_Btn.setStyleSheet(Button_style)
-        ## Start Button Event
-        self.Start_Btn.clicked.connect(self.start)
+        ## Start Button Event --> Using Lambda
+        self.Start_Btn.clicked.connect(lambda :self.timer.start(1000))
         ButtonsContainer.addWidget(self.Start_Btn)
 
 
@@ -115,18 +114,17 @@ class MyWindow(QMainWindow):
         central_widget.setLayout(mainlayout)
         self.setCentralWidget(central_widget)
 
-    def start(self):
-        self.timer.start(1000)# 1 second
-        print("Hello")
-     
+    # =============== Core Functions ====================
+
     def add_process(self):
          if not self.processes:
             nextLastId=1
          else:
             currentLastId=self.processes[-1]["id"]
             nextLastId=int(currentLastId[1:])+1
-         p = create_process("P"+str(nextLastId), 0, 5)
+         p = create_process("P"+str(nextLastId), 1, 5)
          self.processes.append(p)
+         self.state["queue"].append(p)  # Hooooooooi
          row = self.table.rowCount()
          self.table.insertRow(row)
          self.table.setItem(row, 0, QTableWidgetItem(p["id"]))
