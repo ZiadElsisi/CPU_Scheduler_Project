@@ -182,10 +182,12 @@ class MyWindow(QMainWindow):
             self.table.setColumnHidden(4, True)
 #
     def update_simulation(self):
-        done = False
+        done = True
         for p in self.processes:
-            if p["remaining"] !=0 : break
-            else: done = True
+            if p["remaining"] == 0 : continue
+            else:
+                done = False
+                break
 
         if done  :
             self.timer.stop()

@@ -6,7 +6,7 @@ from scheduler_Algorithms import round_robin , priority_Nonpreemptive, priority_
 
 def get_next_process(state):
     if not state["queue"]:
-        return None
+        return state["current"]
 
     if state["algorithm"] == "Priority Preemptive":
         return priority_preemptive(state)
@@ -14,7 +14,7 @@ def get_next_process(state):
     elif state["algorithm"] == "Priority Non-Preemptive":
         return priority_Nonpreemptive(state)
 
-    elif state["algorithm"] == "":
+    elif state["algorithm"] == "Round Robin":
         return round_robin(state)
 
     elif state["algorithm"] == "SJF Preemptive":
@@ -27,11 +27,13 @@ def get_next_process(state):
 
 def run_step(state):
     for p in state["processes"]:
-        if p["arrival"] == state["time"]:
+        if p["arrival"] <= state["time"] and p["remaining"] > 0:
             if p not in state["queue"] and p != state["current"]:
                 state["queue"].append(p)
     # ===== SELECT PROCESS =====
     selected = get_next_process(state)
+    if selected and selected["remaining"] == 0:
+        selected = None
     if selected is None:
         if state["current"] is None:
             if state["processes"] :
@@ -44,13 +46,13 @@ def run_step(state):
     # ===== SWITCH (IMPORTANT FOR PREEMPTIVE) =====
 
     if state["current"] != selected:
-            if state["current"]:
-                state["queue"].append(state["current"])
+        if state["current"] and state["current"]["remaining"] > 0:
+            state["queue"].append(state["current"])
 
-            state["current"] = selected
+        state["current"] = selected
 
-            if selected in state["queue"]:
-                state["queue"].remove(selected)
+        if selected in state["queue"]:
+            state["queue"].remove(selected)
 
     current_p = state["current"]
 
@@ -63,26 +65,22 @@ def run_step(state):
         current_p["remaining"] = current_p["remaining"] - 1
     
 
-    #when i test the code infinite loop occurs 
-    #add this codition to prevent infinite loop
-    if current_p["remaining"] <= 0:
-        state["current"] = None
+
 
     # 4. Round Robin Logic
+    if state["algorithm"] == "Round Robin":
+        state["counter"] += 1
+        if state["counter"] == state["quantum"]:
+            if state["current"] and state["current"]["remaining"] > 0:
+                    state["queue"].append(state["current"])
+
+            state["current"] = None
+            state["counter"] = 0
+        # ===== FINISH =====
 
     if current_p["remaining"] == 0:
         state["current"] = None
-
-        state["counter"] += 1
-
-        if state["algorithm"] == "Round Robin":
-            if state["counter"] == state["quantum"]:
-                if state["current"] and state["current"]["remaining"] > 0:
-                    state["queue"].append(state["current"])
-
-                state["current"] = None
-                state["counter"] = 0
-
+        state["counter"] = 0
         # print on console
     print(f"Time {state['time']}: Process {current_p['id']} is running. Left: {current_p['remaining']}")
 
