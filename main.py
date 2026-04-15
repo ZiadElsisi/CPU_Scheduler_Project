@@ -95,6 +95,17 @@ class MyWindow(QMainWindow):
         Header.setStyleSheet(Header_style)
         mainlayout.addWidget(Header)
     
+       
+        self.time_label = QLabel("Time: 0")
+
+        mainlayout.addWidget(self.time_label)
+
+        self.running_label = QLabel("Running: None")
+
+        mainlayout.addWidget(self.running_label)
+       
+       
+       
         # TableChartLayout -- > Contains Table / Chart
         TableChartLayout = QHBoxLayout()
         self.table = createTable(self)
@@ -202,7 +213,6 @@ class MyWindow(QMainWindow):
         if done and self.state["current"] is None:
             self.timer.stop()
             print("Simulation Finished: All processes completed.")
-<<<<<<< HEAD
             return 
         run_step(self.state)
         for row, p in enumerate(self.processes):
@@ -214,23 +224,8 @@ class MyWindow(QMainWindow):
                 self.running_label.setText(f"Running: {self.state['current']['id']}")
             else:
                 self.running_label.setText("Running: None")
-            
-            if self.state["current"]:
-                self.highlight_row(self.state["current"]["id"])
 
-    def highlight_row(self, active_id):
-        for row in range(self.table.rowCount()):
-            item = self.table.item(row, 0)
-            if item and item.text() == active_id:
-                for col in range(self.table.columnCount()):
-                    self.table.item(row, col).setBackground(Qt.GlobalColor.yellow)
-            else:
-                for col in range(self.table.columnCount()):
-                    self.table.item(row, col).setBackground(Qt.GlobalColor.white)
-=======
     
-    
->>>>>>> 7f9e2b41afb6645e2bd73bd8bd1bb2c6517c5d73
 
 # Run App
 
