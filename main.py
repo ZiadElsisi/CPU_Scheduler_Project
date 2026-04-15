@@ -1,8 +1,9 @@
+from email.mime import text
 import sys
 from PyQt6.QtCore import QTimer
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
-    QApplication, QMainWindow, QWidget,
+    QApplication, QComboBox, QMainWindow, QWidget,
     QVBoxLayout, QPushButton, QTableWidget,
     QTableWidgetItem, QDialog, QLineEdit,
     QFormLayout, QDialogButtonBox, QStatusBar, QFrame, QHBoxLayout, QLabel
@@ -14,11 +15,19 @@ from models import create_process
 
 # Main Window
 class MyWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self): 
+
+        self.state = {
+    "queue": [],
+    "current": None,
+    "time": 0,
+    "algorithm": None
+}
         super().__init__()
         self.processes=[]
         self.setWindowTitle("CPU Scheduler - Task 1")
-        self.resize(900, 600)
+        self.resize(1100, 600)
+        self.setMinimumSize(1100,600)
 
         # Centeral widget :
         central_widget = QWidget()
@@ -35,20 +44,39 @@ padding: 20px;
 border-radius: 10px;
 """)
         mainlayout.addWidget(Header)
+        
+        #combo box for selecting scheduling algorithm
+        self.combo = QComboBox()
+        self.combo.setPlaceholderText("Select Algorithm")
+        self.combo.addItems(["Priority Preemptive", "Priority Non-Preemptive", "Round Robin", "SJF Preemptive", "SJF Non-Preemptive"])
+        self.combo.setCurrentIndex(-1)
+        self.combo.currentTextChanged.connect(
+    lambda text: (
+        self.state.update({"algorithm": text}))
+
+        )
+
+    
+       
+      
+        
         # TableChartLayout -- > Contains Table / Chart
         TableChartLayout = QHBoxLayout()
-        self.Table = createTable(self)
-
-        #self.Table.setStyleSheet("background-color: red;")
+        from table_widget import createTable
+        self.table = createTable(self)
 
         Chart = QFrame()
         Chart.setStyleSheet("background-color: blue;")
 
-        TableChartLayout.addWidget(self.Table)
+        TableChartLayout.addWidget(self.table)
         TableChartLayout.addWidget(Chart)
         TableChartLayout.setStretch(0, 1)
-        TableChartLayout.setStretch(1, 2)
+        TableChartLayout.setStretch(1, 1)
         mainlayout.addLayout(TableChartLayout)
+
+    
+       
+        
 
         # Add Button
         self.add_btn = QPushButton("Add Process")
@@ -88,12 +116,13 @@ QPushButton:pressed {
     background-color: #1c5980;
 }
 """)
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.update_simulation)
-        self.add_btn.clicked.connect(self.start)
+        # self.timer = QTimer()
+        # self.timer.timeout.connect(self.update_simulation)
+        # self.add_btn.clicked.connect(self.start)
         ButtonsContainer = QHBoxLayout()
         ButtonsContainer.addWidget(self.add_btn)
         ButtonsContainer.addWidget(self.Start_Btn)
+        ButtonsContainer.addWidget(self.combo)
 
         # Add to layout
         # mainlayout.addWidget(self.table)
@@ -122,7 +151,7 @@ QPushButton:pressed {
 
     
    
-
+    
 
 # Run App
 
@@ -131,7 +160,6 @@ if __name__ == "__main__":
 
     window = MyWindow()
     window.show()
-
     sys.exit(app.exec())
     
 

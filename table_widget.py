@@ -16,7 +16,7 @@ def createTable(self):
             }
             QTableWidget {
             background-color: white;
-            font-size: 15px;
+            font-size: 12px;
             border: none;
         }
 
@@ -47,5 +47,5 @@ def createTable(self):
 
 """)
         #creating the initial processes
-        table.setHorizontalHeaderLabels(["process id","arrival time","burst time","remaining burst time"])
+        table.setHorizontalHeaderLabels(["process id","arrival time","burst time","remaining time"])
         return table
