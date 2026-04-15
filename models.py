@@ -1,10 +1,11 @@
-def create_process(pid, arrival, burst):
+def create_process(pid, arrival, burst,priority):
 
     process = {
         "id": pid,
         "arrival": arrival,
         "burst": burst,
-        "remaining": burst  
+        "remaining": burst ,
+        "priority": priority,
     }
     return process
 
