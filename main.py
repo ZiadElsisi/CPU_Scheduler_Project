@@ -54,6 +54,7 @@ class AddProcessDialog(QDialog ):
 
         layout.addRow("Arrival:", self.arrival)
         layout.addRow("Burst:", self.burst)
+
         if algorithm and "Priority" in algorithm:
             layout.addRow("Priority:", self.priority)
 
@@ -94,6 +95,17 @@ class MyWindow(QMainWindow):
         Header.setStyleSheet(Header_style)
         mainlayout.addWidget(Header)
     
+
+        self.time_label = QLabel("Time: 0")
+
+        mainlayout.addWidget(self.time_label)
+
+        self.running_label = QLabel("Running: None")
+
+        mainlayout.addWidget(self.running_label)
+
+
+
         # TableChartLayout -- > Contains Table / Chart
         TableChartLayout = QHBoxLayout()
         self.table = createTable(self)
