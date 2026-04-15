@@ -31,11 +31,9 @@ def priority_preemptive(state):
 
 
 def round_robin(state):
-    if state["current"]:
-        return state["current"]
     if not state["queue"]:
         return None
-    return state["queue"][0]
+    return state["queue"].pop(0)
 
 # Shortest Job First None Preemptive ----
 

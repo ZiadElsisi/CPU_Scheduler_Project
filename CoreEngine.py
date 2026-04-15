@@ -6,7 +6,10 @@ from scheduler_Algorithms import round_robin , priority_Nonpreemptive, priority_
 
 def get_next_process(state):
     if not state["queue"]:
-        return state["current"]
+        if state["current"] and state["current"]["remaining"] > 0:
+            return state["current"]
+        else:
+            return None
 
     if state["algorithm"] == "Priority Preemptive":
         return priority_preemptive(state)
@@ -22,7 +25,6 @@ def get_next_process(state):
 
     elif state["algorithm"] == "SJF Non-Preemptive":
         return sjf_non_preemptive(state)
-    return None
 
 
 def run_step(state):
@@ -31,17 +33,14 @@ def run_step(state):
             if p not in state["queue"] and p != state["current"]:
                 state["queue"].append(p)
     # ===== SELECT PROCESS =====
+
     selected = get_next_process(state)
     if selected and selected["remaining"] == 0:
         selected = None
+    # if nothing to run → just move time
     if selected is None:
-        if state["current"] is None:
-            if state["processes"] :
-                state["time"] +=1
-            return
-
-        else:
-            selected = state["current"]
+        state["time"] += 1
+        return
 
     # ===== SWITCH (IMPORTANT FOR PREEMPTIVE) =====
 
@@ -49,21 +48,21 @@ def run_step(state):
         if state["current"] and state["current"]["remaining"] > 0:
             state["queue"].append(state["current"])
 
-        state["current"] = selected
-
         if selected in state["queue"]:
             state["queue"].remove(selected)
+
+        state["current"] = selected
 
     current_p = state["current"]
 
     # 1. Move the clock forward by 1 second
     state["time"] = state["time"] + 1
 
-    
-    # 3. Reduce its remaining time by 1 
+
+    # 3. Reduce its remaining time by 1
     if current_p["remaining"] > 0:
         current_p["remaining"] = current_p["remaining"] - 1
-    
+
 
 
 

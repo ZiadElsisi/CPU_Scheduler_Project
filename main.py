@@ -54,7 +54,6 @@ class AddProcessDialog(QDialog ):
 
         layout.addRow("Arrival:", self.arrival)
         layout.addRow("Burst:", self.burst)
-
         if algorithm and "Priority" in algorithm:
             layout.addRow("Priority:", self.priority)
 
@@ -171,15 +170,17 @@ class MyWindow(QMainWindow):
             self.table.setItem(row, 2, QTableWidgetItem(str(p["burst"])))
             self.table.setItem(row, 3, QTableWidgetItem(str(p["remaining"])))
             self.table.setItem(row, 4, QTableWidgetItem(str(p["priority"])))
+
+
             self.combo.setEnabled(False)
 
     def change_algorithm(self, text):
         self.state["algorithm"] = text
 
         if "Priority" in text:
-            self.table.setColumnHidden(4, False)
-        else:
-            self.table.setColumnHidden(4, True)
+            self.table.setColumnHidden(6, False)
+
+
 #
     def update_simulation(self):
         done = True
