@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QApplication,QMainWindow,QTableWidget,QTableWidgetItem,QVBoxLayout,QWidget,QHeaderView
 def createTable(self):
-        table=QTableWidget(10,4)  #assume the user choose to first enter 3 processes it will later be replaced by n process where n is input from user
+        table=QTableWidget(0,5)  #assume the user choose to first enter 3 processes it will later be replaced by n process where n is input from user
         table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers) #disable editting the table
         table.setSelectionMode(QTableWidget.SelectionMode.NoSelection) #disable selecting cells
         table.horizontalHeader().setSectionResizeMode(
@@ -16,7 +16,7 @@ def createTable(self):
             }
             QTableWidget {
             background-color: white;
-            font-size: 15px;
+            font-size: 12px;
             border: none;
         }
 
@@ -34,7 +34,7 @@ def createTable(self):
         color: white;
         padding: 6px;
         font-weight: bold;
-        font-size:15px;
+        font-size:10px;
        border: 0.5px solid #2980b9;
         }
 
@@ -47,9 +47,6 @@ def createTable(self):
 
 """)
         #creating the initial processes
-        table.setHorizontalHeaderLabels(["process id","arrival time","burst time","remaining burst time"])
-        table.setItem(0,0,QTableWidgetItem("a")) #those are dummy variables will be changed later
-        table.setItem(0,1,QTableWidgetItem("b"))
-        table.setItem(0,2,QTableWidgetItem("d"))
-        table.setItem(0,3,QTableWidgetItem("e"))
+        table.setHorizontalHeaderLabels(["PID","T_arrival","T_burst","T_remaining","T_Turnaround", "T_Waiting","Priority"])
+        table.setColumnHidden(4, True) ## --> Hide Periority Initially
         return table

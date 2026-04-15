@@ -1,99 +1,216 @@
+from email.mime import text
 import sys
-
+from PyQt6.QtCore import QTimer
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
-    QApplication, QMainWindow, QWidget,
+    QApplication, QComboBox, QMainWindow, QWidget,
     QVBoxLayout, QPushButton, QTableWidget,
     QTableWidgetItem, QDialog, QLineEdit,
     QFormLayout, QDialogButtonBox, QStatusBar, QFrame, QHBoxLayout, QLabel
 )
+from table_widget import createTable
+from models import create_process
+from CoreEngine import run_step
+from table_widget import createTable
 
+## Style ::
+Button_style = """
+            QPushButton {
+                background-color: #3498db;
+                color: white;
+                border-radius: 10px;
+                padding: 10px;
+                font-size: 14px;
+            }
 
+            QPushButton:hover {
+                background-color: #2980b9;
+            }
+
+            QPushButton:pressed {
+                background-color: #1c5980;
+            }
+            """
+Header_style = """
+            background-color: #111827;
+            color: #E5E7EB;
+            font-size: 26px;
+            font-weight: bold;
+            padding: 20px;
+            border-radius: 10px;
+            """
+
+## 🔧 Add dialog class
+class AddProcessDialog(QDialog ):
+    def __init__(self,algorithm):
+        super().__init__()
+        self.setWindowTitle("Add Process")
+
+        layout = QFormLayout()
+
+        self.arrival = QLineEdit()
+        self.burst = QLineEdit()
+        self.priority = QLineEdit()
+
+        layout.addRow("Arrival:", self.arrival)
+        layout.addRow("Burst:", self.burst)
+
+        if algorithm and "Priority" in algorithm:
+            layout.addRow("Priority:", self.priority)
+
+        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+
+        layout.addWidget(buttons)
+        self.setLayout(layout)
 # Main Window
 class MyWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("CPU Scheduler - Task 1")
-        self.resize(900, 600)
+        ## Configuration
+        self.processes=[]
+        self.state = {
+            "queue": [],
+            "current": None,
+            "time": 0,
+            "algorithm": None ,
+            "quantum" : 1  ,
+            "counter" : 0 ,
+            "processes" : self.processes ,
 
-        # Centeral widget :
+        }
+        self.setWindowTitle("CPU Scheduler")
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_simulation)
+        self.resize(1100, 600)
+        self.setMinimumSize(1100,600)
+
+        # ==================== UI ====================
         central_widget = QWidget()
         # Main Layout--> Contains Table / chats And Buttons
         mainlayout = QVBoxLayout()
         Header = QLabel("WELCOME TO CPU SCHEDULER")
         Header.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        Header.setStyleSheet("""
-background-color: #111827;
-color: #E5E7EB;
-font-size: 26px;
-font-weight: bold;
-padding: 20px;
-border-radius: 10px;
-""")
+        Header.setStyleSheet(Header_style)
         mainlayout.addWidget(Header)
+    
+        
+        self.time_label = QLabel("Time: 0")
+        mainlayout.addWidget(self.time_label)
+
+        self.running_label = QLabel("Running: None")
+        mainlayout.addWidget(self.running_label)
+        
+        
+        
+        
         # TableChartLayout -- > Contains Table / Chart
         TableChartLayout = QHBoxLayout()
-        Table = QFrame()
-
-        Table.setStyleSheet("background-color: red;")
+        self.table = createTable(self)
+        TableChartLayout.addWidget(self.table)
 
         Chart = QFrame()
         Chart.setStyleSheet("background-color: blue;")
-
-        TableChartLayout.addWidget(Table)
         TableChartLayout.addWidget(Chart)
+
+        ## Setting Table/Chart Ratios
         TableChartLayout.setStretch(0, 1)
-        TableChartLayout.setStretch(1, 2)
+        TableChartLayout.setStretch(1, 1)
         mainlayout.addLayout(TableChartLayout)
 
-        # Add Button
-        self.add_btn = QPushButton("Add Process")
-        self.add_btn.setStyleSheet("""
-QPushButton {
-    background-color: #3498db;
-    color: white;
-    border-radius: 10px;
-    padding: 10px;
-    font-size: 14px;
-}
-
-QPushButton:hover {
-    background-color: #2980b9;
-}
-
-QPushButton:pressed {
-    background-color: #1c5980;
-}
-""")
-        self.Start_Btn = QPushButton("Start")
-        self.Start_Btn.setStyleSheet("""
-QPushButton {
-    background-color: #3498db;
-    color: white;
-    border-radius: 10px;
-    padding: 10px;
-    font-size: 14px;
-}
-
-QPushButton:hover {
-    background-color: #2980b9;
-}
-
-QPushButton:pressed {
-    background-color: #1c5980;
-}
-""")
+        ##--> Container For Buttons
         ButtonsContainer = QHBoxLayout()
+        # Add Buttons
+        self.add_btn = QPushButton("Add Process")
+        self.add_btn.setStyleSheet(Button_style)
         ButtonsContainer.addWidget(self.add_btn)
+
+        ## Add Button Event
+        self.add_btn.clicked.connect(self.add_process)
+
+        # Start Button
+        self.Start_Btn = QPushButton("Start")
+        self.Start_Btn.setStyleSheet(Button_style)
+        ## Start Button Event --> Using Lambda
+        self.Start_Btn.clicked.connect(lambda :self.timer.start(1000))
         ButtonsContainer.addWidget(self.Start_Btn)
 
+
+        # combo box for selecting scheduling algorithm
+        self.combo = QComboBox()
+        self.combo.setPlaceholderText("Select Algorithm")
+        self.combo.addItems(
+            ["Priority Preemptive", "Priority Non-Preemptive", "Round Robin", "SJF Preemptive", "SJF Non-Preemptive"])
+        self.combo.setCurrentIndex(-1)
+        self.combo.currentTextChanged.connect(self.change_algorithm)
+        ButtonsContainer.addWidget(self.combo)
+
         # Add to layout
-        # mainlayout.addWidget(self.table)
         mainlayout.addLayout(ButtonsContainer)
 
         central_widget.setLayout(mainlayout)
         self.setCentralWidget(central_widget)
 
+    # =============== Core Functions ====================
+
+    def add_process(self):
+        dialog = AddProcessDialog(self.state["algorithm"])
+
+        if dialog.exec():
+            ## --> Get Dialoge entries
+            arrival = int(dialog.arrival.text())
+            burst = int(dialog.burst.text())
+            if dialog.priority.text() :
+                priority = int(dialog.priority.text())
+            else:
+                priority = 0
+
+
+            if not self.processes:
+                nextLastId=1
+            else:
+                currentLastId=self.processes[-1]["id"]
+                nextLastId=int(currentLastId[1:])+1
+            p = create_process("P"+str(nextLastId), arrival, burst,priority)
+            self.processes.append(p)
+            row = self.table.rowCount()
+            self.table.insertRow(row)
+            self.table.setItem(row, 0, QTableWidgetItem(p["id"]))
+            self.table.setItem(row, 1, QTableWidgetItem(str(p["arrival"])))
+            self.table.setItem(row, 2, QTableWidgetItem(str(p["burst"])))
+            self.table.setItem(row, 3, QTableWidgetItem(str(p["remaining"])))
+            self.table.setItem(row, 4, QTableWidgetItem(str(p["priority"])))
+            self.combo.setEnabled(False)
+
+    def change_algorithm(self, text):
+        self.state["algorithm"] = text
+
+        if "Priority" in text:
+            self.table.setColumnHidden(4, False)
+        else:
+            self.table.setColumnHidden(4, True)
+
+    def update_simulation(self):
+        done = False
+        for p in self.processes:
+            if p["remaining"] !=0 : break
+            else: done = True
+
+        if done  :
+            self.timer.stop()
+            print("Simulation Finished: All processes completed.")
+            return 
+        run_step(self.state)
+        for row, p in enumerate(self.processes):
+            new_value = str(p["remaining"]) 
+            self.table.setItem(row, 3, QTableWidgetItem(new_value))
+            
+            self.time_label.setText(f"Time: {self.state['time']}")
+            if self.state["current"]:
+                self.running_label.setText(f"Running: {self.state['current']['id']}")
+            else:
+                self.running_label.setText("Running: None")
 
 
 # Run App
@@ -103,8 +220,11 @@ if __name__ == "__main__":
 
     window = MyWindow()
     window.show()
-
     sys.exit(app.exec())
     
 
-    
+  
+
+
+        
+
