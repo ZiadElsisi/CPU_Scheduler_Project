@@ -1,29 +1,11 @@
 # File: scheduler_Algorithms.py
 
 # This is our global state to keep track of everything in one place
-from scheduler_Algorithms import round_robin , priority_Nonpreemptive, priority_preemptive , sjf_Preemptive , sjf_non_preemptive
-
-
-def get_next_process(state):
-    if not state["queue"]:
-        return None
-
-    if state["algorithm"] == "Priority Preemptive":
-        return priority_preemptive(state)
-
-    elif state["algorithm"] == "Priority Non-Preemptive":
-        return priority_Nonpreemptive(state)
-
-    elif state["algorithm"] == "":
-        return round_robin(state)
-
-    elif state["algorithm"] == "SJF Preemptive":
-        return sjf_Preemptive(state)
-
-    elif state["algorithm"] == "SJF Non-Preemptive":
-        return sjf_non_preemptive(state)
-    return None
-
+state = {
+    "queue": [],      # List of processes waiting
+    "current": None,   # The process the CPU is currently executing
+    "time": 0          # The global counter clock { 1 s each time ]
+}
 
 def run_step(state):
     for p in state["processes"]:

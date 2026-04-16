@@ -95,6 +95,16 @@ class MyWindow(QMainWindow):
         Header.setStyleSheet(Header_style)
         mainlayout.addWidget(Header)
     
+        
+        self.time_label = QLabel("Time: 0")
+        mainlayout.addWidget(self.time_label)
+
+        self.running_label = QLabel("Running: None")
+        mainlayout.addWidget(self.running_label)
+        
+        
+        
+        
         # TableChartLayout -- > Contains Table / Chart
         TableChartLayout = QHBoxLayout()
         self.table = createTable(self)
@@ -202,6 +212,12 @@ class MyWindow(QMainWindow):
             self.timer.stop()
             print("Simulation Finished: All processes completed.")
             return 
+        run_step(self.state)
+        for row, p in enumerate(self.processes):
+            new_value = str(p["remaining"]) 
+            self.table.setItem(row, 3, QTableWidgetItem(new_value))
+   
+    
 
 # Run App
 
