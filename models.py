@@ -4,7 +4,10 @@ def create_process(pid, arrival, burst):
         "id": pid,
         "arrival": arrival,
         "burst": burst,
-        "remaining": burst  
+        "remaining": burst ,
+        "finish":0,
+        "turnaround":0,
+        "waiting":0 
     }
     return process
 

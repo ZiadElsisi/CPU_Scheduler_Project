@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QApplication,QMainWindow,QTableWidget,QTableWidgetItem,QVBoxLayout,QWidget,QHeaderView
 def createTable(self):
-        table=QTableWidget(0,4)  #assume the user choose to first enter 3 processes it will later be replaced by n process where n is input from user
+        table=QTableWidget(0,6)  #assume the user choose to first enter 3 processes it will later be replaced by n process where n is input from user
         table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers) #disable editting the table
         table.setSelectionMode(QTableWidget.SelectionMode.NoSelection) #disable selecting cells
         table.horizontalHeader().setSectionResizeMode(
@@ -47,5 +47,5 @@ def createTable(self):
 
 """)
         #creating the initial processes
-        table.setHorizontalHeaderLabels(["process id","arrival time","burst time","remaining time"])
+        table.setHorizontalHeaderLabels(["PID","T_arrival","T_burst","T_remaining","T_Turnaround", "T_Waiting"])
         return table

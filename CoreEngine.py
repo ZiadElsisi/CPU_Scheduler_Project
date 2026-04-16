@@ -54,6 +54,12 @@ def run_step(state):
     # 3. Reduce its remaining time by 1 
     if current_p["remaining"] > 0:
         current_p["remaining"] = current_p["remaining"] - 1
+    
+
+    #when i test the code infinite loop occurs 
+    #add this codition to prevent infinite loop
+    if current_p["remaining"] <= 0:
+        state["current"] = None
 
    #print on console      
     print(f"Time {state['time']}: Process {current_p['id']} is running. Left: {current_p['remaining']}")
