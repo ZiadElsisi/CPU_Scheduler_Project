@@ -206,6 +206,10 @@ class MyWindow(QMainWindow):
         # start simulation
         mode = self.mode_combo.currentText()
 
+        if not mode:
+            QMessageBox.warning(self, "Error", "Please select a mode first.")
+            return
+
         # disable controls
         self.add_btn.setEnabled(False)
         self.combo.setEnabled(False)
@@ -288,15 +292,42 @@ class MyWindow(QMainWindow):
                     self.state["algorithm"] = None
                     self.combo.setCurrentIndex(-1)
 
-    def step(self) :
-        self.time_label.setText("Time: "+str(self.state["time"]))
-        if self.state["current"] != None:
-            self.running_label.setText("Running: "+str(self.state["current"]["id"]))
+    def step(self):
+        run_step(self.state)
+
+        # 2. update labels
+        self.time_label.setText("Time: " + str(self.state["time"]))
+
+        current_id = None
+        if self.state["current"]:
+            current_id = self.state["current"]["id"]
+            self.running_label.setText("Running: " + current_id)
         else:
             self.running_label.setText("Running: None")
-        run_step(self.state)
+
+        for row, p in enumerate(self.processes):
+
+            # update remaining
+            item = self.table.item(row, 3)
+            if item:
+                item.setText(str(p["remaining"]))
+
+            pid_item = self.table.item(row, 0)
+
+            if not pid_item:
+                continue
+
+            # color logic
+            if p["remaining"] == 0:
+                pid_item.setBackground(QColor("#bdc3c7"))  # gray
+
+            elif p["id"] == current_id:
+                pid_item.setBackground(QColor(46, 204, 113, 150))  # green
+
+            else:
+                pid_item.setBackground(QColor(0, 0, 0, 0))  # reset
+
         self.gantt_widget.set_data(self.state["timeline"])
-        return
 
     def update_simulation(self):
         done = True
