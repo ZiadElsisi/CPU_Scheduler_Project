@@ -39,18 +39,47 @@ Header_style = """
             padding: 20px;
             border-radius: 10px;
             """
+
+## 🔧 Add dialog class
+class AddProcessDialog(QDialog ):
+    def __init__(self,algorithm):
+        super().__init__()
+        self.setWindowTitle("Add Process")
+
+        layout = QFormLayout()
+
+        self.arrival = QLineEdit()
+        self.burst = QLineEdit()
+        self.priority = QLineEdit()
+
+        layout.addRow("Arrival:", self.arrival)
+        layout.addRow("Burst:", self.burst)
+
+        if algorithm and "Priority" in algorithm:
+            layout.addRow("Priority:", self.priority)
+
+        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+
+        layout.addWidget(buttons)
+        self.setLayout(layout)
 # Main Window
 class MyWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         ## Configuration
+        self.processes=[]
         self.state = {
             "queue": [],
             "current": None,
             "time": 0,
-            "algorithm": None
+            "algorithm": None ,
+            "quantum" : 1  ,
+            "counter" : 0 ,
+            "processes" : self.processes ,
+
         }
-        self.processes=[]
         self.setWindowTitle("CPU Scheduler")
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_simulation)
@@ -104,8 +133,7 @@ class MyWindow(QMainWindow):
         self.combo.addItems(
             ["Priority Preemptive", "Priority Non-Preemptive", "Round Robin", "SJF Preemptive", "SJF Non-Preemptive"])
         self.combo.setCurrentIndex(-1)
-        self.combo.currentTextChanged.connect(lambda text: (self.state.update(
-            {"algorithm": text})))
+        self.combo.currentTextChanged.connect(self.change_algorithm)
         ButtonsContainer.addWidget(self.combo)
 
         # Add to layout
@@ -117,27 +145,49 @@ class MyWindow(QMainWindow):
     # =============== Core Functions ====================
 
     def add_process(self):
-         if not self.processes:
-            nextLastId=1
-         else:
-            currentLastId=self.processes[-1]["id"]
-            nextLastId=int(currentLastId[1:])+1
-         p = create_process("P"+str(nextLastId), 1, 5)
-         self.processes.append(p)
-         self.state["queue"].append(p)  # Hooooooooi
-         row = self.table.rowCount()
-         self.table.insertRow(row)
-         self.table.setItem(row, 0, QTableWidgetItem(p["id"]))
-         self.table.setItem(row, 1, QTableWidgetItem(str(p["arrival"])))
-         self.table.setItem(row, 2, QTableWidgetItem(str(p["burst"])))
-         self.table.setItem(row, 3, QTableWidgetItem(str(p["remaining"])))
+        dialog = AddProcessDialog(self.state["algorithm"])
+
+        if dialog.exec():
+            ## --> Get Dialoge entries
+            arrival = int(dialog.arrival.text())
+            burst = int(dialog.burst.text())
+            if dialog.priority.text() :
+                priority = int(dialog.priority.text())
+            else:
+                priority = 0
+
+
+            if not self.processes:
+                nextLastId=1
+            else:
+                currentLastId=self.processes[-1]["id"]
+                nextLastId=int(currentLastId[1:])+1
+            p = create_process("P"+str(nextLastId), arrival, burst,priority)
+            self.processes.append(p)
+            row = self.table.rowCount()
+            self.table.insertRow(row)
+            self.table.setItem(row, 0, QTableWidgetItem(p["id"]))
+            self.table.setItem(row, 1, QTableWidgetItem(str(p["arrival"])))
+            self.table.setItem(row, 2, QTableWidgetItem(str(p["burst"])))
+            self.table.setItem(row, 3, QTableWidgetItem(str(p["remaining"])))
+            self.table.setItem(row, 4, QTableWidgetItem(str(p["priority"])))
+            self.combo.setEnabled(False)
+
+    def change_algorithm(self, text):
+        self.state["algorithm"] = text
+
+        if "Priority" in text:
+            self.table.setColumnHidden(4, False)
+        else:
+            self.table.setColumnHidden(4, True)
 
     def update_simulation(self):
+        done = False
         for p in self.processes:
-            if p["arrival"]<=self.state["timer"] and p not in self.state["queue"]:
-                self.state["queue"].append(p)
-                
-        if not self.state["queue"] and self.state["current"] is None:
+            if p["remaining"] !=0 : break
+            else: done = True
+
+        if done  :
             self.timer.stop()
             print("Simulation Finished: All processes completed.")
             return 

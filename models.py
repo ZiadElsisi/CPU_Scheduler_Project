@@ -1,4 +1,4 @@
-def create_process(pid, arrival, burst):
+def create_process(pid, arrival, burst,priority):
 
     process = {
         "id": pid,
@@ -7,7 +7,8 @@ def create_process(pid, arrival, burst):
         "remaining": burst ,
         "finish":0,
         "turnaround":0,
-        "waiting":0 
+        "waiting":0,
+        "priority": priority,
     }
     return process
 

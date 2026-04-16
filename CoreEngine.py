@@ -14,7 +14,7 @@ def get_next_process(state):
     elif state["algorithm"] == "Priority Non-Preemptive":
         return priority_Nonpreemptive(state)
 
-    elif state["algorithm"] == "Round Robin":
+    elif state["algorithm"] == "":
         return round_robin(state)
 
     elif state["algorithm"] == "SJF Preemptive":
@@ -22,20 +22,27 @@ def get_next_process(state):
 
     elif state["algorithm"] == "SJF Non-Preemptive":
         return sjf_non_preemptive(state)
-
     return None
 
 
 def run_step(state):
+    for p in state["processes"]:
+        if p["arrival"] == state["time"]:
+            if p not in state["queue"] and p != state["current"]:
+                state["queue"].append(p)
     # ===== SELECT PROCESS =====
     selected = get_next_process(state)
     if selected is None:
         if state["current"] is None:
+            if state["processes"] :
+                state["time"] +=1
             return
+
         else:
             selected = state["current"]
 
     # ===== SWITCH (IMPORTANT FOR PREEMPTIVE) =====
+
     if state["current"] != selected:
             if state["current"]:
                 state["queue"].append(state["current"])
@@ -61,11 +68,24 @@ def run_step(state):
     if current_p["remaining"] <= 0:
         state["current"] = None
 
-   #print on console      
-    print(f"Time {state['time']}: Process {current_p['id']} is running. Left: {current_p['remaining']}")
+    # 4. Round Robin Logic
 
     if current_p["remaining"] == 0:
         state["current"] = None
+
+        state["counter"] += 1
+
+        if state["algorithm"] == "Round Robin":
+            if state["counter"] == state["quantum"]:
+                if state["current"] and state["current"]["remaining"] > 0:
+                    state["queue"].append(state["current"])
+
+                state["current"] = None
+                state["counter"] = 0
+
+        # print on console
+    print(f"Time {state['time']}: Process {current_p['id']} is running. Left: {current_p['remaining']}")
+
 # # ================== Testing ========
 #
 # if __name__ == "__main__":
