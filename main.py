@@ -66,6 +66,27 @@ class AddProcessDialog(QDialog ):
 
         layout.addWidget(buttons)
         self.setLayout(layout)
+
+class QuantumDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Set Time Quantum")
+
+        layout = QFormLayout()
+
+        self.quantum_input = QLineEdit()
+        layout.addRow("Quantum:", self.quantum_input)
+
+        buttons = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Ok |
+            QDialogButtonBox.StandardButton.Cancel
+        )
+
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+
+        layout.addWidget(buttons)
+        self.setLayout(layout)
 # Main Window
 class MyWindow(QMainWindow):
     def __init__(self):
@@ -77,7 +98,7 @@ class MyWindow(QMainWindow):
             "current": None,
             "time": 0,
             "algorithm": None ,
-            "quantum" : 1  ,
+            "quantum" : None  ,
             "counter" : 0 ,
             "processes" : self.processes ,
             "timeline" : []
@@ -97,13 +118,18 @@ class MyWindow(QMainWindow):
         Header.setAlignment(Qt.AlignmentFlag.AlignCenter)
         Header.setStyleSheet(Header_style)
         mainlayout.addWidget(Header)
+
+        self.running_label = QLabel("Running: None")
+        self.mode_combo = QComboBox()
+        self.mode_combo.setPlaceholderText("Select Mode")
+        self.mode_combo.addItems(["Dynamic", "Static"])
+        mainlayout.addWidget(self.mode_combo)
     
 
         self.time_label = QLabel(f'time : 0')
 
         mainlayout.addWidget(self.time_label)
 
-        self.running_label = QLabel("Running: None")
 
         mainlayout.addWidget(self.running_label)
 
@@ -173,9 +199,37 @@ class MyWindow(QMainWindow):
         if self.state["algorithm"] is None:
             QMessageBox.warning(self, "Error", "Please select an algorithm first.")
             return
+        if self.state["algorithm"] == "Round Robin" and not self.state["quantum"]:
+            QMessageBox.warning(self, "Error", "Please set time quantum.")
+            return
 
         # start simulation
-        self.timer.start(1000)
+        mode = self.mode_combo.currentText()
+
+        # disable controls
+        self.add_btn.setEnabled(False)
+        self.combo.setEnabled(False)
+        self.Start_Btn.setEnabled(False)
+
+        if mode == "Dynamic":
+            self.timer.start(1000)
+
+        else:  # STATIC MODE
+
+            while True:
+                done = True
+                for p in self.processes:
+                    if p["remaining"] > 0:
+                        done = False
+                        break
+
+                if done:
+                    # call one last time to trigger popup logic
+                    self.update_simulation()
+                    break
+
+                self.update_simulation()
+
 
         # disable controls
         self.add_btn.setEnabled(False)
@@ -218,6 +272,21 @@ class MyWindow(QMainWindow):
 
         if "Priority" in text:
             self.table.setColumnHidden(4, False)
+        else:
+            self.table.setColumnHidden(4, True)
+
+        if text == "Round Robin":
+            dialog = QuantumDialog()
+            if dialog.exec():
+                try:
+                    q = int(dialog.quantum_input.text())
+                    if q <= 0:
+                        raise ValueError
+                    self.state["quantum"] = q
+                except:
+                    QMessageBox.warning(self, "Error", "Invalid quantum value")
+                    self.state["algorithm"] = None
+                    self.combo.setCurrentIndex(-1)
 
     def step(self) :
         self.time_label.setText("Time: "+str(self.state["time"]))
@@ -258,7 +327,8 @@ class MyWindow(QMainWindow):
                 f"Average Turnaround Time: {avg_tat:.2f}"
             )
             msg.exec()
-            self.timer.stop()
+            if self.timer.isActive():
+                self.timer.stop()
 
             print("Simulation Finished: All processes completed.")
             self.add_btn.setEnabled(True)

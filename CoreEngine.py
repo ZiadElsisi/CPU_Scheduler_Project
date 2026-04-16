@@ -45,7 +45,6 @@ def run_step(state):
         # 🔥 IMPORTANT: record idle in timeline
         state["timeline"].append((state["time"], "IDLE"))
 
-        print(f"Time {state['time']}: CPU is Idle (Waiting for arrivals)")
         return
 
     # ===== SWITCH (IMPORTANT FOR PREEMPTIVE) =====
@@ -71,26 +70,26 @@ def run_step(state):
 
     state["timeline"].append((state["time"], current_p["id"]))
 
-
-
-
-    # 4. Round Robin Logic
+    # ---- Round Robin ----
     if state["algorithm"] == "Round Robin":
         state["counter"] += 1
-        if state["counter"] == state["quantum"]:
-            if state["current"] and state["current"]["remaining"] > 0:
-                    state["queue"].append(state["current"])
 
-            state["current"] = None
+        # if process finished → reset counter
+        if current_p["remaining"] == 0:
             state["counter"] = 0
+
+        # if quantum reached → force switch
+        elif state["counter"] >= state["quantum"]:
+            state["queue"].append(current_p)  # put it back
+            state["current"] = None  # force new selection
+            state["counter"] = 0
+
         # ===== FINISH =====
-    print(state["timeline"])
     if current_p["remaining"] == 0:
         current_p["completion"] = state["time"]  # 🔥 ADD THIS
         state["current"] = None
         state["counter"] = 0
         # print on console
-    print(f"Time {state['time']}: Process {current_p['id']} is running. Left: {current_p['remaining']}")
 
 # # ================== Testing ========
 #

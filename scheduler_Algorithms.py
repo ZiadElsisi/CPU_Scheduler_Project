@@ -31,8 +31,14 @@ def priority_preemptive(state):
 
 
 def round_robin(state):
+    # If still within quantum → keep current
+    if state["current"] and state["counter"] < state["quantum"]:
+        return state["current"]
+
+    # Otherwise pick next process
     if not state["queue"]:
         return None
+
     return state["queue"].pop(0)
 
 # Shortest Job First None Preemptive ----
