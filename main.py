@@ -177,27 +177,32 @@ class MyWindow(QMainWindow):
         self.state["algorithm"] = text
 
         if "Priority" in text:
-            self.table.setColumnHidden(4, False)
+            self.table.setColumnHidden(6, False)
         else:
-            self.table.setColumnHidden(4, True)
-#
+            self.table.setColumnHidden(6, True)
+
     def update_simulation(self):
+    
+        run_step(self.state)
         done = True
         for p in self.processes:
-            if p["remaining"] == 0 : continue
+            if p["remaining"] > 0:done = False 
             else:
-                done = False
-                break
+                if p["finish"] == 0:
+                    p["finish"] = self.state["time"]
+                    p["turnaround"] = p["finish"] - p["arrival"]
+                    p["waiting"] = p["turnaround"] - p["burst"]
 
-        if done  :
+        for row, p in enumerate(self.processes):
+            self.table.setItem(row, 3, QTableWidgetItem(str(p["remaining"])))
+            if p["finish"]> 0:
+                self.table.setItem(row, 4, QTableWidgetItem(str(p["waiting"])))
+                self.table.setItem(row, 5, QTableWidgetItem(str(p["turnaround"])))
+
+        if done and self.state["current"] is None:
             self.timer.stop()
             print("Simulation Finished: All processes completed.")
-            return 
-        run_step(self.state)
-        for row, p in enumerate(self.processes):
-            new_value = str(p["remaining"]) 
-            self.table.setItem(row, 3, QTableWidgetItem(new_value))
-   
+    
     
 
 # Run App
