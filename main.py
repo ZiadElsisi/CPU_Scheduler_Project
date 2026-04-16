@@ -133,6 +133,10 @@ class MyWindow(QMainWindow):
          self.table.setItem(row, 3, QTableWidgetItem(str(p["remaining"])))
 
     def update_simulation(self):
+        for p in self.processes:
+            if p["arrival"]<=self.state["timer"] and p not in self.state["queue"]:
+                self.state["queue"].append(p)
+                
         if not self.state["queue"] and self.state["current"] is None:
             self.timer.stop()
             print("Simulation Finished: All processes completed.")
