@@ -56,12 +56,13 @@ def sjf_non_preemptive(state):
 
 
 def sjf_Preemptive(state):
-    if not state["queue"] and not state["current"]:
-        return None
+    candidates = [p for p in state["queue"] if p["remaining"] > 0]
 
-    candidates = state["queue"][:]
-    if state["current"]:
+    if state["current"] and state["current"]["remaining"] > 0:
         candidates.append(state["current"])
+
+    if not candidates:
+        return None
 
     return min(candidates, key=lambda p: p["remaining"])
 

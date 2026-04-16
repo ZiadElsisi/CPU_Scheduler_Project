@@ -12,7 +12,9 @@ from table_widget import createTable
 from models import create_process
 from CoreEngine import run_step
 from table_widget import createTable
-
+from gant_wiget import *
+from PyQt6.QtWidgets import QScrollArea
+from PyQt6.QtWidgets import QMessageBox
 ## Style ::
 Button_style = """
             QPushButton {
@@ -78,6 +80,7 @@ class MyWindow(QMainWindow):
             "quantum" : 1  ,
             "counter" : 0 ,
             "processes" : self.processes ,
+            "timeline" : []
 
         }
         self.setWindowTitle("CPU Scheduler")
@@ -96,7 +99,7 @@ class MyWindow(QMainWindow):
         mainlayout.addWidget(Header)
     
 
-        self.time_label = QLabel("Time: 0")
+        self.time_label = QLabel(f'time : 0')
 
         mainlayout.addWidget(self.time_label)
 
@@ -109,15 +112,20 @@ class MyWindow(QMainWindow):
         # TableChartLayout -- > Contains Table / Chart
         TableChartLayout = QHBoxLayout()
         self.table = createTable(self)
-        TableChartLayout.addWidget(self.table)
+        TableChartLayout.addWidget(self.table,0)
 
-        Chart = QFrame()
-        Chart.setStyleSheet("background-color: blue;")
-        TableChartLayout.addWidget(Chart)
+
+        self.scroll = QScrollArea()
+        self.scroll.setWidgetResizable(True)
+
+        self.gantt_widget = GanttWidget()
+        self.scroll.setWidget(self.gantt_widget)
+
+        TableChartLayout.addWidget(self.scroll,1)
 
         ## Setting Table/Chart Ratios
-        TableChartLayout.setStretch(0, 1)
-        TableChartLayout.setStretch(1, 1)
+        self.table.setFixedWidth(500)  # adjust (450–600 based on your UI)
+        self.scroll.setWidgetResizable(True)
         mainlayout.addLayout(TableChartLayout)
 
         ##--> Container For Buttons
@@ -134,7 +142,7 @@ class MyWindow(QMainWindow):
         self.Start_Btn = QPushButton("Start")
         self.Start_Btn.setStyleSheet(Button_style)
         ## Start Button Event --> Using Lambda
-        self.Start_Btn.clicked.connect(lambda :self.timer.start(1000))
+        self.Start_Btn.clicked.connect(self.safe_start)
         ButtonsContainer.addWidget(self.Start_Btn)
 
 
@@ -154,6 +162,27 @@ class MyWindow(QMainWindow):
         self.setCentralWidget(central_widget)
 
     # =============== Core Functions ====================
+    def safe_start(self):
+        if self.timer.isActive():
+            return
+
+        if not self.processes:
+            QMessageBox.warning(self, "Error", "Please add at least one process.")
+            return
+
+        if self.state["algorithm"] is None:
+            QMessageBox.warning(self, "Error", "Please select an algorithm first.")
+            return
+
+        # start simulation
+        self.timer.start(1000)
+
+        # disable controls
+        self.add_btn.setEnabled(False)
+        self.combo.setEnabled(False)
+        self.Start_Btn.setEnabled(False)
+
+        self.running_label.setText("Running...")
 
     def add_process(self):
         dialog = AddProcessDialog(self.state["algorithm"])
@@ -184,16 +213,22 @@ class MyWindow(QMainWindow):
             self.table.setItem(row, 4, QTableWidgetItem(str(p["priority"])))
 
 
-            self.combo.setEnabled(False)
-
     def change_algorithm(self, text):
         self.state["algorithm"] = text
 
         if "Priority" in text:
-            self.table.setColumnHidden(6, False)
+            self.table.setColumnHidden(4, False)
 
+    def step(self) :
+        self.time_label.setText("Time: "+str(self.state["time"]))
+        if self.state["current"] != None:
+            self.running_label.setText("Running: "+str(self.state["current"]["id"]))
+        else:
+            self.running_label.setText("Running: None")
+        run_step(self.state)
+        self.gantt_widget.set_data(self.state["timeline"])
+        return
 
-#
     def update_simulation(self):
         done = True
         for p in self.processes:
@@ -203,15 +238,39 @@ class MyWindow(QMainWindow):
                 break
 
         if done  :
+            total_wt = 0
+            total_tat = 0
+
+            for p in self.processes:
+                ct = p.get("completion", 0)
+                tat = ct - p["arrival"]
+                wt = tat - p["burst"]
+
+                total_wt += wt
+                total_tat += tat
+
+            avg_wt = total_wt / len(self.processes)
+            avg_tat = total_tat / len(self.processes)
+            msg = QMessageBox(self)
+            msg.setWindowTitle("Simulation Results")
+            msg.setText(
+                f"Average Waiting Time: {avg_wt:.2f}\n"
+                f"Average Turnaround Time: {avg_tat:.2f}"
+            )
+            msg.exec()
             self.timer.stop()
+
             print("Simulation Finished: All processes completed.")
+            self.add_btn.setEnabled(True)
+            self.combo.setEnabled(True)
+            self.Start_Btn.setEnabled(True)
+            self.running_label.setText("Finished")
             return 
-        run_step(self.state)
+        self.step()
         for row, p in enumerate(self.processes):
             new_value = str(p["remaining"]) 
             self.table.setItem(row, 3, QTableWidgetItem(new_value))
-   
-    
+
 
 # Run App
 

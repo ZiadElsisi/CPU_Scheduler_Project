@@ -40,6 +40,12 @@ def run_step(state):
     # if nothing to run → just move time
     if selected is None:
         state["time"] += 1
+        state["current"] = None
+
+        # 🔥 IMPORTANT: record idle in timeline
+        state["timeline"].append((state["time"], "IDLE"))
+
+        print(f"Time {state['time']}: CPU is Idle (Waiting for arrivals)")
         return
 
     # ===== SWITCH (IMPORTANT FOR PREEMPTIVE) =====
@@ -63,6 +69,8 @@ def run_step(state):
     if current_p["remaining"] > 0:
         current_p["remaining"] = current_p["remaining"] - 1
 
+    state["timeline"].append((state["time"], current_p["id"]))
+
 
 
 
@@ -76,8 +84,9 @@ def run_step(state):
             state["current"] = None
             state["counter"] = 0
         # ===== FINISH =====
-
+    print(state["timeline"])
     if current_p["remaining"] == 0:
+        current_p["completion"] = state["time"]  # 🔥 ADD THIS
         state["current"] = None
         state["counter"] = 0
         # print on console
