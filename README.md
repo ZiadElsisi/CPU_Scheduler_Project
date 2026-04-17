@@ -16,8 +16,7 @@ The application allows users to:
 
 ## 🖼️ Preview
 
-![App Screenshot](img.png)
-
+![img.png](UI_Preview.png)
 ---
 
 ## ⚙️ Features

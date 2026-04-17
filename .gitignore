@@ -3,3 +3,14 @@ __pycache__/
 /OS_ProjectReport.pdf
 /~$_ProjectReport.docx
 /venv
+# Python
+__pycache__/
+*.pyc
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
