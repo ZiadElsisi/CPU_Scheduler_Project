@@ -167,7 +167,7 @@ class MyWindow(QMainWindow):
         # Start Button
         self.Start_Btn = QPushButton("Start")
         self.Start_Btn.setStyleSheet(Button_style)
-        ## Start Button Event --> Using Lambda
+        ## Start Button Event 
         self.Start_Btn.clicked.connect(self.safe_start)
         ButtonsContainer.addWidget(self.Start_Btn)
 
@@ -191,6 +191,9 @@ class MyWindow(QMainWindow):
     def safe_start(self):
         if self.timer.isActive():
             return
+        if self.Start_Btn.text()=="Reset":
+            self.resetSimulation()
+            return
 
         if not self.processes:
             QMessageBox.warning(self, "Error", "Please add at least one process.")
@@ -211,8 +214,8 @@ class MyWindow(QMainWindow):
             return
 
         # disable controls
-        self.add_btn.setEnabled(False)
-        self.combo.setEnabled(False)
+        self.add_btn.setEnabled(True)
+        self.combo.setEnabled(True)
         self.Start_Btn.setEnabled(False)
 
         if mode == "Dynamic":
@@ -235,10 +238,7 @@ class MyWindow(QMainWindow):
                 self.update_simulation()
 
 
-        # disable controls
-        self.add_btn.setEnabled(False)
-        self.combo.setEnabled(False)
-        self.Start_Btn.setEnabled(False)
+    
 
         self.running_label.setText("Running...")
 
@@ -360,10 +360,12 @@ class MyWindow(QMainWindow):
             msg.exec()
             if self.timer.isActive():
                 self.timer.stop()
+                
 
             print("Simulation Finished: All processes completed.")
-            self.add_btn.setEnabled(True)
+            self.add_btn.setEnabled(False)
             self.combo.setEnabled(True)
+            self.Start_Btn.setText("Reset")
             self.Start_Btn.setEnabled(True)
             self.running_label.setText("Finished")
             return 
@@ -371,6 +373,22 @@ class MyWindow(QMainWindow):
         for row, p in enumerate(self.processes):
             new_value = str(p["remaining"]) 
             self.table.setItem(row, 3, QTableWidgetItem(new_value))
+    def resetSimulation(self):
+       while self.table.rowCount() > 0:
+            self.table.removeRow(0)
+       self.processes.clear()
+       self.state["time"]=0
+       self.state["timeline"].clear()
+       self.gantt_widget.set_data([])
+       self.time_label.setText("Time: " + str(self.state["time"]))
+       self.combo.setCurrentIndex(-1)
+       self.mode_combo.setCurrentIndex(-1)
+       self.running_label.setText("Running: None")
+       self.add_btn.setEnabled(True)
+       self.Start_Btn.setText("Start")
+
+
+
 
 
 # Run App
