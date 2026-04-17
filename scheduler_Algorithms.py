@@ -72,4 +72,14 @@ def sjf_Preemptive(state):
 
     return min(candidates, key=lambda p: p["remaining"])
 
+def fcfs(state):
+    if state["current"]:
+        return state["current"]
 
+    if not state["queue"]:
+        return None
+
+    # sort by arrival time
+    state["queue"].sort(key=lambda p: p["arrival"])
+
+    return state["queue"].pop(0)

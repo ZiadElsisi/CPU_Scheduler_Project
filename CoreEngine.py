@@ -1,7 +1,7 @@
 # File: scheduler_Algorithms.py
 
 # This is our global state to keep track of everything in one place
-from scheduler_Algorithms import round_robin , priority_Nonpreemptive, priority_preemptive , sjf_Preemptive , sjf_non_preemptive
+from scheduler_Algorithms import round_robin , priority_Nonpreemptive, priority_preemptive , sjf_Preemptive , sjf_non_preemptive,fcfs
 
 
 def get_next_process(state):
@@ -25,6 +25,9 @@ def get_next_process(state):
 
     elif state["algorithm"] == "SJF Non-Preemptive":
         return sjf_non_preemptive(state)
+
+    elif state["algorithm"] == "FCFS":
+        return fcfs(state)
 
 
 def run_step(state):

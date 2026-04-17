@@ -32,6 +32,10 @@ Button_style = """
             QPushButton:pressed {
                 background-color: #1c5980;
             }
+            QPushButton:disabled {
+            background-color: #bdc3c7;
+            color: #7f8c8d;
+            }
             """
 Header_style = """
             background-color: #111827;
@@ -44,7 +48,7 @@ Header_style = """
 
 ## 🔧 Add dialog class
 class AddProcessDialog(QDialog ):
-    def __init__(self,algorithm):
+    def __init__(self,algorithm, parent=None):
         super().__init__()
         self.setWindowTitle("Add Process")
 
@@ -59,6 +63,8 @@ class AddProcessDialog(QDialog ):
 
         if algorithm and "Priority" in algorithm:
             layout.addRow("Priority:", self.priority)
+        if parent and parent.timer.isActive():
+            self.arrival.hide()
 
         buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         buttons.accepted.connect(self.accept)
@@ -175,8 +181,14 @@ class MyWindow(QMainWindow):
         # combo box for selecting scheduling algorithm
         self.combo = QComboBox()
         self.combo.setPlaceholderText("Select Algorithm")
-        self.combo.addItems(
-            ["Priority Preemptive", "Priority Non-Preemptive", "Round Robin", "SJF Preemptive", "SJF Non-Preemptive"])
+        self.combo.addItems([
+            "FCFS",
+            "Priority Preemptive",
+            "Priority Non-Preemptive",
+            "Round Robin",
+            "SJF Preemptive",
+            "SJF Non-Preemptive"
+        ])
         self.combo.setCurrentIndex(-1)
         self.combo.currentTextChanged.connect(self.change_algorithm)
         ButtonsContainer.addWidget(self.combo)
@@ -215,8 +227,10 @@ class MyWindow(QMainWindow):
 
         # disable controls
         self.add_btn.setEnabled(True)
-        self.combo.setEnabled(True)
+        self.combo.setEnabled(False)
+        self.mode_combo.setEnabled(False)
         self.Start_Btn.setEnabled(False)
+        self.Start_Btn.setText("Running")
 
         if mode == "Dynamic":
             self.timer.start(1000)
@@ -224,30 +238,29 @@ class MyWindow(QMainWindow):
         else:  # STATIC MODE
 
             while True:
-                done = True
-                for p in self.processes:
-                    if p["remaining"] > 0:
-                        done = False
-                        break
+                # check if done BEFORE stepping
+                done = all(p["remaining"] == 0 for p in self.processes)
 
                 if done:
-                    # call one last time to trigger popup logic
-                    self.update_simulation()
+                    self.update_simulation()  # ✅ show popup ONLY
                     break
 
-                self.update_simulation()
+                self.step()  # ✅ run ONE step (NOT update_simulation)
+
 
 
     
 
-        self.running_label.setText("Running...")
-
     def add_process(self):
-        dialog = AddProcessDialog(self.state["algorithm"])
+        dialog = AddProcessDialog(self.state["algorithm"],self)
 
         if dialog.exec():
             ## --> Get Dialoge entries
-            arrival = int(dialog.arrival.text())
+            # if running → auto arrival
+            if self.timer.isActive() :
+                arrival = self.state["time"]
+            else:
+                arrival = int(dialog.arrival.text())
             burst = int(dialog.burst.text())
             if dialog.priority.text() :
                 priority = int(dialog.priority.text())
@@ -296,7 +309,7 @@ class MyWindow(QMainWindow):
         run_step(self.state)
 
         # 2. update labels
-        self.time_label.setText("Time: " + str(self.state["time"]))
+        self.time_label.setText("Time: " + str(max(0, self.state["time"] - 1)))
 
         current_id = None
         if self.state["current"]:
@@ -364,7 +377,6 @@ class MyWindow(QMainWindow):
 
             print("Simulation Finished: All processes completed.")
             self.add_btn.setEnabled(False)
-            self.combo.setEnabled(True)
             self.Start_Btn.setText("Reset")
             self.Start_Btn.setEnabled(True)
             self.running_label.setText("Finished")
@@ -373,6 +385,9 @@ class MyWindow(QMainWindow):
         for row, p in enumerate(self.processes):
             new_value = str(p["remaining"]) 
             self.table.setItem(row, 3, QTableWidgetItem(new_value))
+
+
+
     def resetSimulation(self):
        while self.table.rowCount() > 0:
             self.table.removeRow(0)
@@ -386,6 +401,9 @@ class MyWindow(QMainWindow):
        self.running_label.setText("Running: None")
        self.add_btn.setEnabled(True)
        self.Start_Btn.setText("Start")
+       self.combo.setEnabled(True)
+       self.mode_combo.setEnabled(True)
+       self.Start_Btn.setEnabled(True)
 
 
 
