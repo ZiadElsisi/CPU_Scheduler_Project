@@ -43,7 +43,6 @@ CPU-Scheduler/
 ├── table_widget.py        # Table component
 ├── gantt_widget.py        # (Planned) Gantt chart
 ├── scheduler_Algorithms   # Contains All algorithms Logib
-├── img.png                # UI screenshot
 └── README.md
 
 ```
