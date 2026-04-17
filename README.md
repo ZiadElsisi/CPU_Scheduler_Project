@@ -1,193 +1,108 @@
-# 🖥️ CPU Scheduler Simulator (PyQt6)
+# 🚀 CPU Scheduler Simulator (PyQt6)
 
 ## 📌 Overview
 
-This project is a **CPU Scheduling Simulator** built using **PyQt6**.
-It demonstrates how operating systems manage processes using different scheduling algorithms.
-
-The application allows users to:
-
-* Add processes
-* Display them in a table
-* Simulate CPU execution step-by-step
-* Observe how processes are executed over time
+This project is a **CPU Scheduling Simulator** built with **Python and PyQt6**.
+It visualizes how different scheduling algorithms work using a dynamic Gantt chart and real-time process tracking.
 
 ---
 
-## 🖼️ Preview
+## 🎯 Features
 
-![img.png](UI_Preview.png)
----
+* ✅ Multiple Scheduling Algorithms:
 
-## ⚙️ Features
+  * Shortest Job First (Preemptive & Non-preemptive)
+  * Priority Scheduling (Preemptive & Non-preemptive)
+  * Round Robin (with user-defined quantum)
 
-* ✅ Interactive GUI using PyQt6
-* ✅ Add processes dynamically
-* ✅ Process table visualization
-* ✅ Real-time simulation
-* ✅ Remaining burst time updates live
-* ✅ Algorithm selector (FCFS, SJF, SRTF, RR)
-* 🚧 Ready for extension (Gantt chart, metrics)
+* 🎬 Two Modes:
 
----
+  * **Dynamic Mode** → step-by-step simulation
+  * **Static Mode** → instant final result
 
-## 🧱 Project Structure
+* 📊 Visualization:
 
-```
-CPU-Scheduler/
-│
-├── main.py                # Main UI + integration
-├── CoreEngine.py           # Core simulation logic
-├── models.py              # Process data structure
-├── table_widget.py        # Table component
-├── gantt_widget.py        # (Planned) Gantt chart
-├── scheduler_Algorithms   # Contains All algorithms Logib
-└── README.md
+  * Real-time Gantt Chart
+  * Running process highlighting
+  * Idle time representation
 
-```
+* 📈 Metrics:
+
+  * Average Waiting Time
+  * Average Turnaround Time
 
 ---
 
-## 🧠 System Design
+## 🖥️ Tech Stack
 
-The application follows a modular architecture:
-
-```
-User Interface (main.py)
-        ↓
-User Actions (Buttons)
-        ↓
-Process Model (models.py)
-        ↓
-Scheduler Engine (scheduler.py)
-        ↓
-UI Update (Table)
-```
+* Python
+* PyQt6 (GUI)
+* Custom Scheduling Engine
 
 ---
 
-## ⚙️ How It Works
-
-### 1. Add Process
-
-* Click **Add Process**
-* A process is created automatically:
-
-  * ID: P1, P2, ...
-  * Arrival Time = 0 (default)
-  * Burst Time = 5 (default)
-  * Remaining Time = Burst Time
-
----
-
-### 2. Start Simulation
-
-* Click **Start**
-* The system uses a timer to simulate CPU execution
-* Every second:
-
-  * One unit of time is executed
-  * Remaining burst time decreases
-  * Table updates automatically
-
----
-
-### 3. Execution Flow
-
-```
-Add Process → Stored in list → Displayed in table
-Start → Timer → run_step()
-run_step() → updates process
-UI → reflects new values
-```
-
----
-
-## 📊 Table Structure
-
-| Column               | Description                |
-| -------------------- | -------------------------- |
-| Process ID           | Unique identifier          |
-| Arrival Time         | Time process enters system |
-| Burst Time           | Total execution time       |
-| Remaining Burst Time | Time left to execute       |
-
----
-
-## 🔄 Algorithms
-
-### ✅ Implemented
-
-* FCFS (First Come First Serve)
-
-### 🚧 Planned
-
-* SJF (Shortest Job First)
-* SRTF (Shortest Remaining Time First)
-* Round Robin
-* Priority Scheduling
-
----
-
-## 🛠️ Installation
-
-### 1. Install dependencies
+## ▶️ How to Run
 
 ```bash
 pip install PyQt6
-```
-
----
-
-### 2. Run the application
-
-```bash
 python main.py
 ```
 
 ---
 
-## 🎯 Learning Objectives
+## 🧠 How It Works
 
-This project demonstrates:
+* The system simulates CPU execution **step-by-step**
+* At each time unit:
 
-* GUI development using PyQt6
-* Event-driven programming
-* CPU scheduling concepts
-* Separation of concerns (UI / Logic / Data)
-* Real-time simulation
-
----
-
-## 👨‍💻 Team Work
-
-This project was developed collaboratively:
-
-* UI Design
-* Table Component
-* Scheduler Engine
-* Algorithms Implementation
-* Visualization (planned)
+  * New processes are added to the ready queue
+  * The next process is selected based on the chosen algorithm
+  * Execution updates the timeline and UI
 
 ---
 
-## 🚀 Future Improvements
+## 📸 UI Preview
 
-* Gantt Chart visualization
-* Waiting & Turnaround time calculations
-* User input forms
-* Algorithm comparison
-* Better UI/UX design
+![UI_Preview.png](UI_Preview.png)
 
 ---
 
-## 📌 Notes
+## 📂 Project Structure
 
-* Current version uses default process values for testing
-* Advanced algorithms are prepared but not fully integrated yet
+```
+CPU-Scheduler-Project/
+│
+├── main.py
+├── CoreEngine.py
+├── scheduler_Algorithms.py
+├── gantt_widget.py
+├── table_widget.py
+├── models.py
+├── README.md
+```
 
 ---
 
-## 📄 License
+## 💡 Key Concepts Implemented
 
-This project is for educational purposes.
+* Preemptive vs Non-preemptive scheduling
+* Time slicing (Round Robin)
+* Process lifecycle simulation
+* Real-time visualization
+
+---
+
+## 🏁 Future Improvements
+
+* Export results to CSV
+* Speed control slider
+* Better UI themes
+* More scheduling algorithms
+
+---
+
+## 👨‍💻 Author
+
+**Ziad Elsisi**
+
+---
